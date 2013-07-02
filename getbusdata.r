@@ -47,13 +47,16 @@ getschedulebybusid <- function(routeID) {
 }
 
 #get all the bus schedules for today
-schedules <- NULL
-for (n in busroutes$RouteID) {
-  schedules <- rbind(schedules, getschedulebybusid(n))
-  Sys.sleep(10)
+getallschedulesfortoday <- function() {
+  schedules <- NULL
+  for (n in busroutes$RouteID) {
+    schedules <- rbind(schedules, getschedulebybusid(n))
+    Sys.sleep(10)
+  }
+  return(schedules)
 }
 
-#schedules <- do.call(rbind, sapply(X=busroutes$RouteID,FUN=getschedulebybusid))
+TodaysSchedule <- getallschedulesfortoday()
 
 #get all the stops
 getstops <- function() {
