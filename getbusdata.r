@@ -11,15 +11,20 @@ require(snowfall)
 #my api key
 source(file="~/apikey.txt")
 
-#get all the bus routes to get bus route codes
-if (!file.exists("~/wmata-bus-sampling-in-r/busroutes.csv")) {
+#function to get bus routes
+getbusroutes <- function() {
   busrouteurl <- "http://api.wmata.com/Bus.svc/json/JRoutes?api_key="
   raw_data <- getURL(paste0(busrouteurl,key))
   busroutes <- ldply(fromJSON(raw_data)[[1]],data.frame,stringsAsFactors=F)
-  busroutes <- busroutes[-which(grepl(pattern="[a-z]",x=busroutes$RouteID,ignore.case=F)),] #get rid of variation routes
   write.csv(busroutes,file="~/wmata-bus-sampling-in-r/busroutes.csv",row.names=F)
 }
+
+#get all the bus routes to get bus route codes
+if (!file.exists("~/wmata-bus-sampling-in-r/busroutes.csv")) {
+  getbusroutes()
+}
 busroutes <- read.csv(file="~/wmata-bus-sampling-in-r/busroutes.csv",stringsAsFactors=F)
+busroutes <- busroutes[-which(grepl(pattern="[a-z]",x=busroutes$RouteID,ignore.case=F)),] #get rid of variation routes
 
 #get the bus route schedule by route ID
 getschedulebybusid <- function(routeID) {
