@@ -9,7 +9,7 @@ require(plyr)
 require(snowfall)
 
 #my api key
-key <- "s7akyxa8bea5wmdvxfmskw2g"
+key <- "s7akyxasdlkj8e8dasdjfjasdvxfmskw2g"
 
 #get all the bus routes to get bus route codes
 busrouteurl <- "http://api.wmata.com/Bus.svc/json/JRoutes?api_key="
