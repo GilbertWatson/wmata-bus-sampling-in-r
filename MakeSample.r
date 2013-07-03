@@ -3,7 +3,9 @@ if("sampling" %in% rownames(installed.packages()) == FALSE) {install.packages("s
 require(sampling)
 
 ######source population builders and api access#####
-source("~/wmata-bus-sampling-in-r/PopulationBuilder.r")
+LoadAPIToolsAndPopulationData <- function() {
+  source("~/wmata-bus-sampling-in-r/PopulationBuilder.r")
+}
 
 ######define sampling frame on the bus route dimension#####
 getSamplingFrameNow <- function() {
