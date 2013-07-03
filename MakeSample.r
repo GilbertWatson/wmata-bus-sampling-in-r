@@ -41,7 +41,7 @@ if (!file.exists(paste0("~/wmata-bus-sampling-in-r/Schedule.",Sys.Date(),".csv")
 }
 TodaysSchedule <- read.csv(file=paste0("~/wmata-bus-sampling-in-r/Schedule.",Sys.Date(),".csv"),stringsAsFactors=F)
 
-#make sample frame: 1st define number of buses running by route
+#get number of buses running by 1 minute interval for routeID
 getnumberofbusesrunning <- function(routeID) {
   #get today's schedule and parse out variation routes, POSNIX the dates
   ScheduleData <- TodaysSchedule
@@ -61,6 +61,19 @@ getnumberofbusesrunning <- function(routeID) {
   BusesByTime <- as.data.frame(cbind(TimeSequence,BusesOnRoute,rep(routeID,length(TimeSequence))),stringsAsFactors=F)
   names(BusesByTime) <- c("Time","Buses.On.Route","RouteID")
   return(BusesByTime)
+}
+
+#get # of buses by route for all buses in a vector of buses at 1 min intervals
+getbigN <- function(vectorofrouteIDs) {
+  bigtable <- as.data.frame(t(getnumberofbusesrunning(vectorofrouteIDs[1])),stringsAsFactors=F)
+  names(bigtable) <- c("Time","Buses.On.Route","RouteID")
+  for (n in vectorofrouteIDs[2:length(vectorofrouteIDs)]) {
+    toadd <- as.data.frame(t(getnumberofbusesrunning(n)),stringsAsFactors=F)
+    names(toadd) <- c("Time","Buses.On.Route","RouteID")
+    bigtable <- merge(bigtable,toadd,by=c("Time","Buses.On.Route","RouteID"),all=T)
+  }
+  bigtable <- bigtable[order(bigtable$RouteID,bigtable$Time),]
+  return(bigtable)
 }
 
 #csv file
