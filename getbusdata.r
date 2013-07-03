@@ -24,6 +24,7 @@ getstops <- function() {
 
 ######get the bus route schedule by route ID#####
 getschedulebybusid <- function(routeID) {
+  routeID <- gsub(pattern=" ",replacement="+",x=routeID,fixed=T)
   scheduleurl <- paste0("http://api.wmata.com/Bus.svc/json/JRouteSchedule?routeId=",
                         routeID,
                         "&date=",
