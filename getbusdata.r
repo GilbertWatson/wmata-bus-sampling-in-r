@@ -32,14 +32,30 @@ getschedulebybusid <- function(routeID) {
                         "&includingVariations=true&api_key=",
                         key)
   raw_data <- getURL(scheduleurl)
-  json <- fromJSON(raw_data)
-  busschedule0 <- ldply(json[[1]],data.frame,stringsAsFactors=F)
-  busschedule1 <- ldply(json[[2]],data.frame,stringsAsFactors=F)
-  if ((dim(busschedule1)[1] != 0) | (dim(busschedule0)[1] != 0)) {
-    busschedule <- rbind(busschedule1[,1:4],busschedule0[,1:4])
-    return(busschedule)
+  json <- NA
+  try(json <- fromJSON(raw_data),silent=T)
+  if (!is.logical(json)) {
+    busschedule0 <- ldply(json[[1]],data.frame,stringsAsFactors=F)
+    busschedule1 <- ldply(json[[2]],data.frame,stringsAsFactors=F)
+    if ((dim(busschedule1)[1] != 0) | (dim(busschedule0)[1] != 0)) {
+      if ((dim(busschedule1)[1] != 0) & (dim(busschedule0)[1] != 0)) {
+        busschedule <- rbind(busschedule1[,1:4],busschedule0[,1:4])
+        return(busschedule)
+      }
+      if ((dim(busschedule1)[1] != 0) & (dim(busschedule0)[1] == 0)) {
+        busschedule <- busschedule1[,1:4]
+        return(busschedule)
+      }
+      if ((dim(busschedule1)[1] == 0) & (dim(busschedule0)[1] != 0)) {
+        busschedule <- busschedule0[,1:4]
+        return(busschedule)
+      }
+    }
+    else{
+      return()
+    }
   }
-  else{
+  else {
     return()
   }
   Sys.sleep(10)
