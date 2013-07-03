@@ -61,6 +61,7 @@ getallschedulesfortoday <- function(option) {
 
 ######get bus position data function#####
 getbuspositiondata <- function(routeID) {
+  routeID <- gsub(pattern=" ",replacement="+",x=routeID,fixed=T)
   buspositionurl <- paste0("http://api.wmata.com/Bus.svc/json/JBusPositions?routeId=",
                            routeID,
                            "&includingVariations=false&lat=0&lon=0&radius=0&api_key=",
