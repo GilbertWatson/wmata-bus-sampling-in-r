@@ -1,12 +1,3 @@
-#####install packages to read data#####
-if("rjson" %in% rownames(installed.packages()) == FALSE) {install.packages("rjson")}
-if("RCurl" %in% rownames(installed.packages()) == FALSE) {install.packages("RCurl")}
-if("plyr" %in% rownames(installed.packages()) == FALSE) {install.packages("plyr")}
-if("sampling" %in% rownames(installed.packages()) == FALSE) {install.packages("sampling")}
-require(rjson)
-require(RCurl)
-require(plyr)
-
 ######load api functions#####
 source(file="~/wmata-bus-sampling-in-r/getbusdata.r")
 
