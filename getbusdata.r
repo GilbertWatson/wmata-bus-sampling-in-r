@@ -32,9 +32,11 @@ getschedulebybusid <- function(routeID) {
                         "&includingVariations=true&api_key=",
                         key)
   raw_data <- getURL(scheduleurl)
-  busschedule <- ldply(fromJSON(raw_data)[[1]],data.frame,stringsAsFactors=F)
-  if (dim(busschedule)[1] != 0) {
-    busschedule <- busschedule[,1:4]
+  json <- fromJSON(raw_data)
+  busschedule0 <- ldply(json[[1]],data.frame,stringsAsFactors=F)
+  busschedule1 <- ldply(json[[2]],data.frame,stringsAsFactors=F)
+  if ((dim(busschedule1)[1] != 0) | (dim(busschedule0)[1] != 0)) {
+    busschedule <- rbind(busschedule1[,1:4],busschedule0[,1:4])
     return(busschedule)
   }
   else{
