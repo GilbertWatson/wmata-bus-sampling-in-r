@@ -64,11 +64,11 @@ getnumberofbusesrunning <- function(routeID) {
 }
 
 #get # of buses by route for all buses in a vector of buses at 1 min intervals
-getbigN <- function(vectorofrouteIDs) {
-  bigtable <- as.data.frame(t(getnumberofbusesrunning(vectorofrouteIDs[1])),stringsAsFactors=F)
+getbigNdata <- function(vectorofrouteIDs) {
+  bigtable <- as.data.frame(getnumberofbusesrunning(vectorofrouteIDs[1]),stringsAsFactors=F)
   names(bigtable) <- c("Time","Buses.On.Route","RouteID")
   for (n in vectorofrouteIDs[2:length(vectorofrouteIDs)]) {
-    toadd <- as.data.frame(t(getnumberofbusesrunning(n)),stringsAsFactors=F)
+    toadd <- as.data.frame(getnumberofbusesrunning(n),stringsAsFactors=F)
     names(toadd) <- c("Time","Buses.On.Route","RouteID")
     bigtable <- merge(bigtable,toadd,by=c("Time","Buses.On.Route","RouteID"),all=T)
   }
@@ -76,13 +76,12 @@ getbigN <- function(vectorofrouteIDs) {
   return(bigtable)
 }
 
-#csv file
-filefordata <- "/home/gilbert/Documents/busdata.csv"
-
-#function to write to csv
-writetocsv <- function(regulardataframe, filelocation) {
-  write.csv2(regulardataframe,file=filelocation,append=T,row.names=F,col.names=T)
+######get todays n and N by time#####
+if (!file.exists(paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime.",Sys.Date(),".csv"))) {
+  NumberOfActiveTripsByRouteIdAndTime <- getbigNdata(busroutes$RouteID[which(busroutes$Has.Downtown.Stops.On.Route == T)])
+  write.csv(NumberOfActiveTripsByRouteIdAndTime,file=paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime.",Sys.Date(),".csv"),row.names=F)
 }
+NumberOfActiveTripsByRouteIdAndTime <- read.csv(file=paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime.",Sys.Date(),".csv"),stringsAsFactors=F)
 
 #get sample of buses
 while (as.POSIXlt(Sys.time())$hour < 9) {
