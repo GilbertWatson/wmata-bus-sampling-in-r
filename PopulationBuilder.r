@@ -81,30 +81,3 @@ if (!file.exists(paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime
   write.csv(NumberOfActiveTripsByRouteIdAndTime,file=paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime.",Sys.Date(),".csv"),row.names=F)
 }
 NumberOfActiveTripsByRouteIdAndTime <- read.csv(file=paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime.",Sys.Date(),".csv"),stringsAsFactors=F)
-
-
-
-######define sampling frame on the bus route dimension#####
-getSamplingFrameNow <- function() {
-  RouteSamplingFrame <- busroutes$RouteID[which(busroutes$Has.Downtown.Stops.On.Route == T & busroutes$RouteID %in% unique(NumberOfActiveTripsByRouteIdAndTime$RouteID[which(NumberOfActiveTripsByRouteIdAndTime$Buses.On.Route > 0)]))]
-  time <- as.POSIXlt(Sys.time())
-  time$sec <- 00
-  RouteSamplingFrameNow <- RouteSamplingFrame[which(RouteSamplingFrame %in% NumberOfActiveTripsByRouteIdAndTime$RouteID[which(NumberOfActiveTripsByRouteIdAndTime$Time == time & NumberOfActiveTripsByRouteIdAndTime$Buses.On.Route != 0)])]
-  return(RouteSamplingFrameNow)
-}
-
-#####function that randomly selects from the sampling frame, all units are sampled over the course of one minute#####
-GetDataForSampleOfBusesNow <- function(SampleSize,SamplingFrame) {
-  if (SampleSize > 20) {
-    stop("Sample Size Will Break API limits")
-  }
-  else {
-    BusesToSample <- sample(x=SamplingFrame,size=SampleSize,replace=F)
-    BusSampleData <- NULL
-    for (n in BusesToSample) {
-      BusSampleData <- rbind(BusSampleData,getbuspositiondata(n))
-      Sys.sleep(60/SampleSize)
-    }
-    return(BusSampleData)
-  }
-}
