@@ -39,10 +39,28 @@ if (!file.exists(paste0("~/wmata-bus-sampling-in-r/Schedule.",Sys.Date(),".csv")
   TodaysSchedule <- getallschedulesfortoday(option="downtown")
   write.csv(TodaysSchedule,file=paste0("~/wmata-bus-sampling-in-r/Schedule.",Sys.Date(),".csv"),row.names=F)
 }
-TodaysSchedule <- read.csv(file=paste0("~/wmata-bus-sampling-in-r/Schedule.",Sys.Date(),".csv"))
+TodaysSchedule <- read.csv(file=paste0("~/wmata-bus-sampling-in-r/Schedule.",Sys.Date(),".csv"),stringsAsFactors=F)
 
-#make sample frame: 1st define number of buses running
+#make sample frame: 1st define number of buses running by route
 getnumberofbusesrunning <- function(routeID) {
+  #get today's schedule and parse out variation routes, POSNIX the dates
+  ScheduleData <- TodaysSchedule
+  ScheduleData$RouteID <- gsub(pattern="([a-z][0-9])|([a-z])",replacement="",x=ScheduleData$RouteID)
+  ScheduleData$RouteID[which(!grepl("(^S)|( S)|(18S)|(9S)|(8S)",ScheduleData$RouteID))] <- gsub(pattern="(S[0-9])|(S)",replacement="",x=ScheduleData$RouteID[which(!grepl("(^S)|( S)|(18S)|(9S)|(8S)",ScheduleData$RouteID))])
+  ScheduleForRoute <- ScheduleData[which(ScheduleData$RouteID == routeID),]
+  ScheduleForRoute$EndTime <- as.POSIXlt(gsub(pattern="T",replacement=" ",x=ScheduleForRoute$EndTime))
+  ScheduleForRoute$StartTime <- as.POSIXlt(gsub(pattern="T",replacement=" ",x=ScheduleForRoute$StartTime))
+  #generate a sequence of POSNIX from 5am to 3am
+  TimeSequence <- seq.POSIXt(from=as.POSIXlt(paste0(Sys.Date()," 00:00:00")),to=as.POSIXlt(paste0(Sys.Date()," 24:00:00")),by=60)
+  #get the number of buses running on this route at time
+  BusesOnRoute <- sapply(X=TimeSequence,FUN=function(x) {
+    TripsAtTime <- length(ScheduleForRoute$RouteID[which(ScheduleForRoute$StartTime <= x & ScheduleForRoute$EndTime >= x)])
+    return(TripsAtTime)
+  })
+  #turn out a data frame
+  BusesByTime <- as.data.frame(cbind(TimeSequence,BusesOnRoute,rep(routeID,length(TimeSequence))),stringsAsFactors=F)
+  names(BusesByTime) <- c("Time","Buses.On.Route","RouteID")
+  return(BusesByTime)
 }
 
 #csv file
