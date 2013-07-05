@@ -5,8 +5,8 @@ MakeProjectData <- function() {
   file = "~/home"
   execute <- c(seq.POSIXt(from=as.POSIXlt(paste0(Sys.Date()," 07:30:00 EDT")),to=as.POSIXlt(paste0(Sys.Date()," 09:30:00 EDT")),by=60),
                seq.POSIXt(from=as.POSIXlt(paste0(Sys.Date()," 16:00:00 EDT")),to=as.POSIXlt(paste0(Sys.Date()," 20:30:00 EDT")),by=60), #change back to 18:30:00
-               as.POSIXlt(paste0(Sys.Date()," 04:00:00 EDT")),
-               as.POSIXlt(paste0(Sys.Date()," 05:00:00 EDT")))
+               as.POSIXct(paste0(Sys.Date()," 04:00:00 EDT")),
+               as.POSIXct(paste0(Sys.Date()," 05:00:00 EDT")))
   #go get population data and make sure it is there before rush hour
   while(T) {
     Sys.sleep(0.5)
