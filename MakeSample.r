@@ -18,7 +18,7 @@ getSamplingFrameNow <- function() {
 
 #####function that randomly selects from the sampling frame, all units are sampled over the course of one minute#####
 GetDataForSampleOfBusesNow <- function(SampleSize,SamplingFrame) {
-  if (SampleSize > 20) {
+  if (SampleSize > 60) {
     stop("Sample Size Will Break API limits")
   }
   else {

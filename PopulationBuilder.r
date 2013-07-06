@@ -72,3 +72,34 @@ if (!file.exists(paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime
   write.csv(NumberOfActiveTripsByRouteIdAndTime,file=paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime.",Sys.Date(),".csv"),row.names=F)
 }
 NumberOfActiveTripsByRouteIdAndTime <- read.csv(file=paste0("~/wmata-bus-sampling-in-r/NumberOfBusesByRouteIDAndTime.",Sys.Date(),".csv"),stringsAsFactors=F)
+
+#####Count Number of Stops by Route#####
+busroutes$Number.Of.Stops <- sapply(X=busroutes$RouteID,FUN=function(x) {
+  return(length(stops$StopID[which(stops$Routes == x)]))
+})
+
+#####Calculate Bus Frequency by Time Leaving Start of Route#####
+FrequencyByRoute <- function(RouteID) {
+  ScheduleData <- TodaysSchedule
+  ScheduleData$RouteID <- gsub(pattern="([a-z][0-9])|([a-z])",replacement="",x=ScheduleData$RouteID)
+  ScheduleData$RouteID[which(!grepl("(^S)|( S)|(18S)|(9S)|(8S)",ScheduleData$RouteID))] <- gsub(pattern="(S[0-9])|(S)",replacement="",x=ScheduleData$RouteID[which(!grepl("(^S)|( S)|(18S)|(9S)|(8S)",ScheduleData$RouteID))])
+  ScheduleData$StartTime <- as.POSIXct(gsub(pattern="T",replacement=" ",x=ScheduleData$StartTime))
+  ScheduleForRoute.One <- ScheduleData$StartTime[which(ScheduleData$RouteID == RouteID & ScheduleData$DirectionNum == 1)]
+  ScheduleForRoute.Zero <- ScheduleData$StartTime[which(ScheduleData$RouteID == RouteID & ScheduleData$DirectionNum == 0)]
+  ScheduleForRoute.One.Frequency <- c(NA,diff(ScheduleForRoute.One))
+  ScheduleForRoute.Zero.Frequency <- c(NA,diff(ScheduleForRoute.Zero))
+  Zero <- cbind(ScheduleForRoute.Zero,ScheduleForRoute.Zero.Frequency,rep(0,length(ScheduleForRoute.Zero.Frequency)),rep(RouteID,length(ScheduleForRoute.Zero.Frequency)))
+  One <- cbind(ScheduleForRoute.One,ScheduleForRoute.One.Frequency,rep(1,length(ScheduleForRoute.One.Frequency)),rep(RouteID,length(ScheduleForRoute.One.Frequency)))
+  out <- as.data.frame(rbind(Zero,One),stringsAsFactors=F)
+  if (length(out[1,]) < 4) {
+    stop(paste0(RouteID," doesn't work"))
+  }
+  names(out) <- c("StartTime","Frequency","DirectionNum","RouteID")
+  return(out)
+}
+
+#DOESN'T WORK NEED TO ONLY APPLY TO ROUTES THAT HAVE SCHEDULES
+AllFrequencies <- sapply(X=unique(busroutes$RouteID %in% ),FUN=FrequencyByRoute)
+
+
+
