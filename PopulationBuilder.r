@@ -85,21 +85,35 @@ FrequencyByRoute <- function(RouteID) {
   ScheduleData$RouteID[which(!grepl("(^S)|( S)|(18S)|(9S)|(8S)",ScheduleData$RouteID))] <- gsub(pattern="(S[0-9])|(S)",replacement="",x=ScheduleData$RouteID[which(!grepl("(^S)|( S)|(18S)|(9S)|(8S)",ScheduleData$RouteID))])
   ScheduleData$StartTime <- as.POSIXct(gsub(pattern="T",replacement=" ",x=ScheduleData$StartTime))
   ScheduleForRoute.One <- ScheduleData$StartTime[which(ScheduleData$RouteID == RouteID & ScheduleData$DirectionNum == 1)]
+  ScheduleForRoute.One <- ScheduleForRoute.One[order(ScheduleForRoute.One,decreasing=F)]
   ScheduleForRoute.Zero <- ScheduleData$StartTime[which(ScheduleData$RouteID == RouteID & ScheduleData$DirectionNum == 0)]
+  ScheduleForRoute.Zero <- ScheduleForRoute.Zero[order(ScheduleForRoute.Zero,decreasing=F)]
   ScheduleForRoute.One.Frequency <- c(NA,diff(ScheduleForRoute.One))
   ScheduleForRoute.Zero.Frequency <- c(NA,diff(ScheduleForRoute.Zero))
-  Zero <- cbind(ScheduleForRoute.Zero,ScheduleForRoute.Zero.Frequency,rep(0,length(ScheduleForRoute.Zero.Frequency)),rep(RouteID,length(ScheduleForRoute.Zero.Frequency)))
-  One <- cbind(ScheduleForRoute.One,ScheduleForRoute.One.Frequency,rep(1,length(ScheduleForRoute.One.Frequency)),rep(RouteID,length(ScheduleForRoute.One.Frequency)))
-  out <- as.data.frame(rbind(Zero,One),stringsAsFactors=F)
-  if (length(out[1,]) < 4) {
-    stop(paste0(RouteID," doesn't work"))
+  Zero <- as.data.frame(cbind(ScheduleForRoute.Zero,ScheduleForRoute.Zero.Frequency,rep(0,length(ScheduleForRoute.Zero.Frequency)),rep(RouteID,length(ScheduleForRoute.Zero.Frequency))),stringsAsFactors=F)
+  One <- as.data.frame(cbind(ScheduleForRoute.One,ScheduleForRoute.One.Frequency,rep(1,length(ScheduleForRoute.One.Frequency)),rep(RouteID,length(ScheduleForRoute.One.Frequency))),stringsAsFactors=F)
+  if (dim(Zero)[2] < 4) {
+    out <- One
+  }
+  if (dim(One)[2] < 4) {
+    out <- Zero
+  }
+  if (dim(Zero)[2] == 4 & dim(One)[2] == 4) {
+    names(One) <- c("StartTime","Frequency","DirectionNum","RouteID")
+    names(Zero) <- c("StartTime","Frequency","DirectionNum","RouteID")
+    out <- as.data.frame(rbind(Zero,One),stringsAsFactors=F)
   }
   names(out) <- c("StartTime","Frequency","DirectionNum","RouteID")
   return(out)
 }
 
-#DOESN'T WORK NEED TO ONLY APPLY TO ROUTES THAT HAVE SCHEDULES
-AllFrequencies <- sapply(X=unique(busroutes$RouteID %in% ),FUN=FrequencyByRoute)
-
-
-
+#####Get The Frequencies by time for busroutes running today#####
+getAllFrequencies <- function(vectorofroutes) {
+  Data <- NULL
+  for (n in vectorofroutes) {
+    Data <- rbind(Data,FrequencyByRoute(n))
+  }
+  return(Data)
+}
+AllFrequencies <- getAllFrequencies(busroutes$RouteID[which(busroutes$Has.Downtown.Stops.On.Route == T & busroutes$RouteID %in% unique(NumberOfActiveTripsByRouteIdAndTime$RouteID[which(NumberOfActiveTripsByRouteIdAndTime$Buses.On.Route > 0)]))])
+class(AllFrequencies$StartTime) <- c('POSIXt','POSIXct')

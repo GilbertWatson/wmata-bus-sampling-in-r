@@ -74,7 +74,7 @@ getallschedulesfortoday <- function(option) {
     schedules <- rbind(schedules, getschedulebybusid(n))
     Sys.sleep(10)
   }
-  return(schedules)
+  return(unique(schedules))
 }
 
 ######get bus position data function#####
