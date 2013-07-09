@@ -61,24 +61,30 @@ GetDataForSampleOfBusesNow <- function(SampleSize,SamplingFrame,stratify,option)
       BusSampleData <- NULL
       for (n in BusesToSample) {
         BusSampleData <- rbind(BusSampleData,getbuspositiondata(n))
-        Sys.sleep(60/SampleSize)
+        Sys.sleep(50/SampleSize)
       }
       BusSampleData$SystemTime <- as.POSIXlt(Sys.time())
       BusSampleData$little_n.Route <- SampleSize
       BusSampleData$big_N.Route <- length(SamplingFrame)
       return(BusSampleData)
+      test <- data.frame(BusesToSample=BusesToSample,stringsAsFactors=F)
+      test$System.Time <- Sys.time()
+      write.table(ToWriteToFile,file=paste0("~/wmata-bus-sampling-in-r/sampledata/desiredsamples.csv"),append=T,row.names=F,col.names=F,sep=",",eol="\n")
     }
     else {
       BusesToSample <- sample(x=SamplingFrame,size=SampleSize,replace=F)
       BusSampleData <- NULL
       for (n in BusesToSample) {
         BusSampleData <- rbind(BusSampleData,getbuspositiondata(n))
-        Sys.sleep(60/SampleSize)
+        Sys.sleep(50/SampleSize)
       }
       BusSampleData$SystemTime <- as.POSIXlt(Sys.time())
       BusSampleData$little_n.Route <- SampleSize
       BusSampleData$big_N.Route <- length(SamplingFrame)
       return(BusSampleData)
+      test <- data.frame(BusesToSample=BusesToSample,stringsAsFactors=F)
+      test$System.Time <- Sys.time()
+      write.table(ToWriteToFile,file=paste0("~/wmata-bus-sampling-in-r/sampledata/desiredsamples.csv"),append=T,row.names=F,col.names=F,sep=",",eol="\n")
     }
   }
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 source("~/wmata-bus-sampling-in-r/MakeSample.r")
-ss <- 10
+ss <- 30
 LoadAPIToolsAndPopulationData()
 ToWriteToFile <- GetDataForSampleOfBusesNow(SampleSize=ss,SamplingFrame=getSamplingFrameNow(),stratify=T,option="Number.Of.Stops")
 if (file.exists(paste0("~/wmata-bus-sampling-in-r/sampledata/BusSample.",Sys.Date(),".csv"))) {
