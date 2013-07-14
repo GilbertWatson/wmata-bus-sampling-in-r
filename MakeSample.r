@@ -88,3 +88,19 @@ GetDataForSampleOfBusesNow <- function(SampleSize,SamplingFrame,stratify,option)
     }
   }
 }
+
+#get simple data
+rt <- c("90","X2","S1","D4","L2","64","D8","H1","S9",
+        "31","70","42","V7","P6","N4","D5","V9","16X","5A")
+
+GetDataNow <- function(buses=rt) {
+  BusesToSample <- buses
+  SampleSize <- length(BusesToSample)
+  BusSampleData <- NULL
+  for (n in BusesToSample) {
+    BusSampleData <- rbind(BusSampleData,getbuspositiondata(n))
+    Sys.sleep(50/SampleSize)
+  }
+  BusSampleData$SystemTime <- as.POSIXlt(Sys.time())
+  return(BusSampleData)
+}
