@@ -91,13 +91,13 @@ GetDataForSampleOfBusesNow <- function(SampleSize,SamplingFrame,stratify,option)
 
 #get simple data
 rout <- c("90","X2","S1","D4","L2","64","D8","H1","S9","53",
-        "31","70","42","V7","P6","N4","D5","V9","16X","5A")
+          "31","70","42","V7","P6","N4","D5","V9","16X","5A",
+          "G2","K2","A9","74","M4")
 
-GetDataNow <- function(buses=rout) {
-  BusesToSample <- buses
-  SampleSize <- length(BusesToSample)
+GetDataNow <- function(buses) {
+  SampleSize <- length(buses)
   BusSampleData <- NULL
-  for (n in BusesToSample) {
+  for (n in buses) {
     BusSampleData <- rbind(BusSampleData,getbuspositiondata(n))
     Sys.sleep(50/SampleSize)
   }
